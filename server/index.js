@@ -19,10 +19,10 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ CORS (allow deployed frontend)
+// ✅ CORS
 app.use(
 cors({
-origin: true, // or use process.env.CLIENT_URL for stricter control
+origin: true, // or process.env.CLIENT_URL
 credentials: true,
 })
 );
@@ -33,7 +33,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// ✅ API routes
+// ✅ API routes (must come FIRST)
 app.use("/api", routes);
 
 /* =========================
@@ -43,8 +43,9 @@ app.use("/api", routes);
 // Serve static files
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-// React/Vite routing fallback (exclude API routes)
-app.get(/^(?!/api).*/, (req, res) => {
+// Safe fallback for React routes (NO regex issues)
+app.get("*", (req, res, next) => {
+if (req.path.startsWith("/api")) return next();
 res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
@@ -54,7 +55,7 @@ res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 app.use(routeNotFound);
 app.use(errorHandler);
 
-// ✅ CRITICAL FIX FOR RAILWAY
+// ✅ CRITICAL FOR RAILWAY
 const PORT = process.env.PORT;
 
 app.listen(PORT, "0.0.0.0", () => {
