@@ -14,37 +14,49 @@ dotenv.config();
 dbConnection();
 
 const app = express();
-const PORT = process.env.PORT || 8080;
 
-// Fix __dirname in ESM
+// ✅ Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CORS
+// ✅ CORS (allow deployed frontend)
 app.use(
-  cors({
-    origin: true, // or process.env.CLIENT_URL
-    credentials: true,
-  })
+cors({
+origin: true, // or use process.env.CLIENT_URL for stricter control
+credentials: true,
+})
 );
 
+// ✅ Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// API routes
+// ✅ API routes
 app.use("/api", routes);
 
-// Serve frontend
+/* =========================
+✅ SERVE FRONTEND (VITE)
+========================= */
+
+// Serve static files
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+// React/Vite routing fallback (exclude API routes)
+app.get(/^(?!/api).*/, (req, res) => {
+res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
-// Errors
+/* ========================= */
+
+// ✅ Error handlers
 app.use(routeNotFound);
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+// ✅ CRITICAL FIX FOR RAILWAY
+const PORT = process.env.PORT;
+
+app.listen(PORT, "0.0.0.0", () => {
+console.log(`Server running on port ${PORT}`);
+});
