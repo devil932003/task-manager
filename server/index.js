@@ -3,7 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
-import path from "path"; // ✅ ADD THIS
+import path from "path";
+import { fileURLToPath } from "url";
 
 import { errorHandler, routeNotFound } from "./middlewares/errorMiddlewaves.js";
 import routes from "./routes/index.js";
@@ -12,14 +13,17 @@ import { dbConnection } from "./utils/index.js";
 dotenv.config();
 dbConnection();
 
+const app = express();
 const PORT = process.env.PORT || 8080;
 
-const app = express();
+// Fix __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+// CORS
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
-    methods: ["GET", "POST", "DELETE", "PUT"],
+    origin: true, // or process.env.CLIENT_URL
     credentials: true,
   })
 );
@@ -29,25 +33,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 
-// ✅ API routes
+// API routes
 app.use("/api", routes);
 
-/* =========================
-   ✅ SERVE FRONTEND (VITE)
-   ========================= */
-
-const __dirname = path.resolve();
-
-// Serve static files from client/dist
+// Serve frontend
 app.use(express.static(path.join(__dirname, "../client/dist")));
 
-// React/Vite routing fallback
-app.get("*", (req, res) => {
+app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist/index.html"));
 });
 
-/* ========================= */
-
+// Errors
 app.use(routeNotFound);
 app.use(errorHandler);
 
