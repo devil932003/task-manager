@@ -3,12 +3,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import morgan from "morgan";
+import path from "path"; // ✅ ADD THIS
+
 import { errorHandler, routeNotFound } from "./middlewares/errorMiddlewaves.js";
 import routes from "./routes/index.js";
 import { dbConnection } from "./utils/index.js";
 
 dotenv.config();
-
 dbConnection();
 
 const PORT = process.env.PORT || 8080;
@@ -25,11 +26,27 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
-
 app.use(morgan("dev"));
+
+// ✅ API routes
 app.use("/api", routes);
+
+/* =========================
+   ✅ SERVE FRONTEND (VITE)
+   ========================= */
+
+const __dirname = path.resolve();
+
+// Serve static files from client/dist
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+// React/Vite routing fallback
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+});
+
+/* ========================= */
 
 app.use(routeNotFound);
 app.use(errorHandler);

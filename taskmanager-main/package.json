@@ -4,9 +4,9 @@
   "description": "> A full-stack MERN task management platform built for team productivity, role-based access, task assignment, progress tracking, and clean dashboard analytics.",
   "main": "index.js",
   "scripts": {
-    "setup": "npm install --prefix taskmanager-main/server && npm install --prefix taskmanager-main/client",
-    "build": "npm run setup && cd taskmanager-main/client && npm run build",
-    "start": "npm start --prefix taskmanager-main/server"
+      "setup": "npm install --prefix server && npm install --prefix client",
+  "build": "npm run setup && npm run build --prefix client",
+  "start": "npm start --prefix server"
   },
   "keywords": [],
   "author": "",
