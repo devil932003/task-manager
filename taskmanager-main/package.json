@@ -1,0 +1,17 @@
+{
+  "name": "taskmanager-main",
+  "version": "1.0.0",
+  "description": "> A full-stack MERN task management platform built for team productivity, role-based access, task assignment, progress tracking, and clean dashboard analytics.",
+  "main": "index.js",
+  "scripts": {
+    "install-server": "npm install --prefix taskmanager-main/server",
+    "install-client": "npm install --prefix taskmanager-main/client",
+    "build-client": "npm run build --prefix taskmanager-main/client",
+    "build": "npm run install-server && npm run install-client && npm run build-client",
+    "start": "NODE_ENV=production npm start --prefix taskmanager-main/server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
